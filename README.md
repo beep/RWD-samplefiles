@@ -1,4 +1,3 @@
-RWD-robotornot
-==============
+# “Robot or Not” — Sample code files for <cite>Responsive Web Design</cite>
 
-Sample files for “Robot or Not,” a demo site created for the book _Responsive Web Design_.
+Hello, lovely reader! There will eventually be much more in this file.
