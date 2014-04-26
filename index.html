@@ -12,7 +12,7 @@
 
 <!--
 ROBOT…OR NOT?
-© 2011 Ethan Marcotte
+© 2014 Ethan Marcotte
 
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -24,21 +24,22 @@ As you do, though, there are two things I'd ask you keep in mind:
 
 This stylesheet reflects the structure of the book: starting from a desktop-centric layout, and using media queries to size it up *and* down from that point. As I say in Chapter 5 of the book, the more responsible, *accessible* approach would be to start from a linear, small screen-friendly layout, and use `min-width` queries to scale *up* from that point.
 
-The book mentions the need for special CSS comments (namely, a comment containing `\mediaquery`) to use the respond.js library (https://github.com/scottjehl/Respond). The script was recently updated so that those comments are no longer required: just write your media queries, drop in the script, and have fun!
-
 Thanks so much for reading. If you'd like to drop me a line, please do so at http://ethanmarcotte.com/#contact. Thanks again!
 -->
 
-<meta name="DC.creator" content="Ethan Marcotte - http://unstoppablerobotninja.com" />
+<meta name="DC.creator" content="Ethan Marcotte - http://ethanmarcotte.com" />
 <meta name="robots" content="index, follow" />
 <meta name="description" content="A demonstration site for Ethan Marcotte's book, RESPONSIVE WEB DESIGN" /> 
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 <link rel="stylesheet" href="-/css/screen/rodimus.css" media="screen, projection" />
 
+<script src="-/js/respond.js"></script>
 <script src="http://use.typekit.com/daz7uli.js"></script>
 <script>try{Typekit.load();}catch(e){}</script>
-<script src="-/js/respond.js"></script>
+<script src="-/js/jquery.js"></script>
+<script src="-/js/carousel.js"></script>
+<script src="-/js/core.js"></script>
 
 </head>
 
@@ -221,17 +222,13 @@ Thanks so much for reading. If you'd like to drop me a line, please do so at htt
 		<div id="footer">
 			<p>Images &copy; their respective copyright holders.</p>
 
-			<p>The design and code is &copy; 2011 <a href="http://unstoppablerobotninja.com/">Ethan Marcotte</a>, supporting his book <cite><a href="http://responsivewebdesign.com/">Responsive Web Design</a></cite>.</p>
-			<!-- http://books.alistapart.com/products/responsive-web-design -->
+			<p>The design and code is &copy; 2014 <a href="http://unstoppablerobotninja.com/">Ethan Marcotte</a>, supporting his book <cite><a href="http://www.abookapart.com/products/responsive-web-design">Responsive Web Design</a></cite>.</p>
 
-			<p>Beep&nbsp;boop&nbsp;beep.</p>
+			<p>Beep boop beep.</p>
 		</div><!-- /end #footer -->
 	</div><!-- /end #page -->
 
 </div><!-- /end .site -->
-
-<script src="-/js/jquery.js"></script>
-<script src="-/js/core.js"></script>
 
 </body>
 </html>
