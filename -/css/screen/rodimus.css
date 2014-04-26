@@ -132,7 +132,7 @@ img {
 .ie6 img {
 	width: 100%;
 }
-#page {
+.page {
 	margin: 36px auto;
 	width: 90%;
 }
@@ -670,7 +670,7 @@ screen and (max-device-width: 480px) {
 	.ie7 body {
 		background: #CECECE url("../../img/body.gif");	/* Stupid IE7 bug is stupid. */
 	}
-	#page {
+	.page {
 		position: relative;
 		margin: 20px;
 		width: auto;
@@ -810,7 +810,7 @@ screen and (max-device-width: 480px) {
 	Tinier
 */
 @media screen and (max-width: 360px) {
-	#page {
+	.page {
 		margin: 20px 10px;
 	}
 }
@@ -844,7 +844,7 @@ screen and (max-device-width: 480px) {
 }
 
 @media screen and (min-width: 1200px) {
-	#page {
+	.page {
 		margin-top: 0;
 	}
 	.logo {
@@ -939,6 +939,35 @@ screen and (max-device-width: 480px) {
 	}
 	.blog .other {
 		padding: 10px 8.48057%;
+	}
+}
+
+/*
+	Rather gratuitous .page adjustments
+*/
+@media screen and (min-width: 1100px) {
+	.page {
+		width: 80%;
+	}
+}
+@media screen and (min-width: 1400px) {
+	.page {
+		width: 70%;
+	}
+}
+@media screen and (min-width: 1600px) {
+	.page {
+		width: 65%;
+	}
+}
+@media screen and (min-width: 1900px) {
+	.page {
+		width: 60%;
+	}
+}
+@media screen and (min-width: 2100px) {
+	.page {
+		width: 50%;
 	}
 }
 
