@@ -3,9 +3,11 @@
 	$( function(){
 
 		// Slides!
-		if ( document.documentElement.clientWidth >= 480 ) {
-			$.get("-/ajax/slides.html", function(data) {
-				$(".welcome .slides")
+		// First, we’ll check to see if the viewport is wider than 500px.
+		if ( document.documentElement.clientWidth >= 500 ) {
+
+			$.get( "-/ajax/slides.html", function( data ) {
+				$( ".welcome .slides" )
 					.append( data )
 					.carousel();
 			});
