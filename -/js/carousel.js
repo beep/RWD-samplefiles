@@ -1,214 +1,382 @@
-(function($){
-	$.fn.carousel = function(config) {
-		carousel = {
-			roundDown : function(leftmargin) {
-				var leftmargin = parseInt(leftmargin, 10);
+/*
+ * responsive-carousel
+ * https://github.com/filamentgroup/responsive-carousel
+ *
+ * Copyright (c) 2012 Filament Group, Inc.
+ * Licensed under the MIT, GPL licenses.
+ */
 
-				return Math.ceil( (leftmargin - (leftmargin % 100 ) ) / 100) * 100;
+(function($) {
+
+	var pluginName = "carousel",
+		initSelector = "." + pluginName,
+		transitionAttr = "data-transition",
+		transitioningClass = pluginName + "-transitioning",
+		itemClass = pluginName + "-item",
+		activeClass = pluginName + "-active",
+		prevClass = pluginName + "-item-prev",
+		nextClass = pluginName + "-item-next",
+		inClass = pluginName + "-in",
+		outClass = pluginName + "-out",
+		navClass =  pluginName + "-nav",
+		prototype,
+		cssTransitionsSupport = (function(){
+			var prefixes = "webkit Moz O Ms".split( " " ),
+				supported = false,
+				property;
+
+			while( prefixes.length ){
+				property = prefixes.shift() + "Transition";
+
+				if ( property in document.documentElement.style !== undefined && property in document.documentElement.style !== false ) {
+					supported = true;
+					break;
+				}
+			}
+			return supported;
+		}()),
+		methods = {
+			_create: function(){
+				$( this )
+					.trigger( "beforecreate." + pluginName )
+					[ pluginName ]( "_init" )
+					[ pluginName ]( "_addNextPrev" )
+					.trigger( "create." + pluginName );
 			},
-			transitionSupport : function() {
-				var dStyle = document.body.style;
 
-				return dStyle.webkitTransition !== undefined || 
-						dStyle.mozTransition !== undefined ||
-						dStyle.msTransition !== undefined ||
-						dStyle.oTransition !== undefined ||
-						dStyle.transition !== undefined;
+			_init: function(){
+				var trans = $( this ).attr( transitionAttr );
+
+				if( !trans ){
+					cssTransitionsSupport = false;
+				}
+
+				$( this )
+					.addClass(
+						pluginName +
+						" " + ( trans ? pluginName + "-" + trans : "" ) + " "
+					)
+					.children()
+					.addClass( itemClass )
+					.first()
+					.addClass( activeClass );
+
+				$(this)[ pluginName ]( "_addNextPrevClasses" );
 			},
-			transitionSwap : function($el, tog) {
-				var speed = opt.speed / 1000,
-					transition = ( tog ) ? "margin-left " + speed + "s ease" : 'none';
 
-				$el.css({
-					"-webkit-transition": transition,
-					"-moz-transition": transition,
-					"-ms-transition": transition,
-					"-o-transition": transition,
-					"transition": transition
+			_addNextPrevClasses: function(){
+				var $items = $( this ).find( "." + itemClass ),
+					$active = $items.filter( "." + activeClass ),
+					$next = $active.next( "." + itemClass ),
+					$prev = $active.prev( "." + itemClass );
+
+				if( !$next.length ){
+					$next = $items.first().not( "." + activeClass );
+				}
+				if( !$prev.length ){
+					$prev = $items.last().not( "." + activeClass );
+				}
+
+				$items.removeClass( prevClass + " " + nextClass );
+				$prev.addClass( prevClass );
+				$next.addClass( nextClass );
+
+			},
+
+			next: function(){
+				$( this )[ pluginName ]( "goTo", "+1" );
+			},
+
+			prev: function(){
+				$( this )[ pluginName ]( "goTo", "-1" );
+			},
+
+			goTo: function( num ){
+
+				var $self = $(this),
+					trans = $self.attr( transitionAttr ),
+					reverseClass = " " + pluginName + "-" + trans + "-reverse";
+
+				// clean up children
+				$( this ).find( "." + itemClass ).removeClass( [ outClass, inClass, reverseClass ].join( " " ) );
+
+				var $from = $( this ).find( "." + activeClass ),
+					prevs = $from.index(),
+					activeNum = ( prevs < 0 ? 0 : prevs ) + 1,
+					nextNum = typeof( num ) === "number" ? num : activeNum + parseFloat(num),
+					index = nextNum - 1,
+					carouselItems = $( this ).find( "." + itemClass ),
+					beforeGoto = $.Event( "beforegoto." + pluginName ),
+					$to = carouselItems.eq( index ),
+					reverse = ( typeof( num ) === "string" && !(parseFloat(num)) ) || nextNum > activeNum ? "" : reverseClass;
+
+				$self.trigger( beforeGoto, {
+					nextIndex: index,
+					items: carouselItems
 				});
-			},
-			snapBack : function($el, left) {
-				var currentPos = ( $el.attr('style') != undefined ) ? $el.attr('style').match(/margin\-left:(.*[0-9])/i) && parseInt(RegExp.$1) : 0,
-					leftmargin = (left === false) ? carousel.roundDown(currentPos) - 100 : carousel.roundDown(currentPos);
 
-				carousel.transitionSwap($el, true);
-				carousel.move($el, leftmargin);
-			},
-			move : function($slider, moveTo) {
-				if(carousel.transitionSupport()) {
-					$slider.css('marginLeft', moveTo + "%");
+				if( beforeGoto.isDefaultPrevented() ) {
+					return;
+				}
+
+				if( !$to.length ){
+					$to = $( this ).find( "." + itemClass )[ reverse.length ? "last" : "first" ]();
+				}
+
+				if( cssTransitionsSupport ){
+					$self[ pluginName ]( "_transitionStart", $from, $to, reverse );
 				} else {
-					$slider.animate({ marginLeft: moveTo + "%" }, opt.speed);
-				}
-			}
-		};
-		var defaults = {
-			slider: '.slider',
-			slide: '.slide',
-			prevSlide: '.prev',
-			nextSlide: '.next',
-			speed: 500
-		},
-		opt = $.extend(defaults, config),
-		nextPrev = function($slider, dir) {
-			var leftmargin = ( $slider ) ? $slider.attr('style').match(/margin\-left:(.*[0-9])/i) && parseInt(RegExp.$1) : 0,
-				$slide = $slider.find(opt.slide),
-				constrain = dir === 'prev' ? leftmargin != 0 : -leftmargin < ($slide.length - 1) * 100,
-				$target = $( '[href="#' + $slider.attr('id') + '"]');
-
-			if (!$slider.is(":animated") && constrain ) {
-
-				if ( dir === 'prev' ) {
-					leftmargin = ( leftmargin % 100 != 0 ) ? carousel.roundDown(leftmargin) : leftmargin + 100;
-				} else {
-					leftmargin = ( ( leftmargin % 100 ) != 0 ) ? carousel.roundDown(leftmargin) - 100 : leftmargin - 100;
+					$to.addClass( activeClass );
+					$self[ pluginName ]( "_transitionEnd", $from, $to, reverse );
 				}
 
-				carousel.move($slider, leftmargin);
-				$target.removeClass('disabled');
+				// added to allow pagination to track
+				$self.trigger( "goto." + pluginName, $to );
+			},
 
-				switch( leftmargin ) {
-					case ( -($slide.length - 1) * 100 ):
-						$target.filter(opt.nextSlide).addClass('disabled');
-						break;
-					case 0:
-						$target.filter(opt.prevSlide).addClass('disabled');
-						break;
-				}
-			} else {
-				var reset = carousel.roundDown(leftmargin);
+			update: function(){
+				$(this).children().not( "." + navClass ).addClass( itemClass );
 
-				carousel.move($slider, reset);
-			}
-		};
+				return $(this).trigger( "update." + pluginName );
+			},
 
-		$(opt.nextSlide + ',' + opt.prevSlide).click(function(e) {
-			var $el = $(this),
-				link = $el.attr('href'),
-				dir = ( $el.is(opt.prevSlide) ) ? 'prev' : 'next',
-				$slider = $(link);
+			_transitionStart: function( $from, $to, reverseClass ){
+				var $self = $(this);
 
-				if ( $el.is('.disabled') ) { 
-					return false;
-				}
+				$to.one( navigator.userAgent.indexOf( "AppleWebKit" ) > -1 ? "webkitTransitionEnd" : "transitionend otransitionend", function(){
+					$self[ pluginName ]( "_transitionEnd", $from, $to, reverseClass );
+				});
 
-				nextPrev($slider, dir);
+				$(this).addClass( reverseClass );
+				$from.addClass( outClass );
+				$to.addClass( inClass );
+			},
 
-			e.preventDefault();
-		});
-		$(opt.prevSlide).addClass('disabled');
+			_transitionEnd: function( $from, $to, reverseClass ){
+				$( this ).removeClass( reverseClass );
+				$from.removeClass( outClass + " " + activeClass );
+				$to.removeClass( inClass ).addClass( activeClass );
+				$( this )[ pluginName ]( "_addNextPrevClasses" );
+			},
 
-		//swipes trigger move left/right
-		$(this).live( "dragSnap", function(e, ui){
-			var $slider = $(this).find( opt.slider ),
-				dir = ( ui.direction === "left" ) ? 'next' : 'prev';
-
-			nextPrev($slider, dir);
-		});
-
-		return this.each(function() {
-			var $wrap = $(this),
-				$slider = $wrap.find(opt.slider),
-				$slide = $wrap.find(opt.slide),
-				slidenum = $slide.length;
-
-			$wrap.css({
-				overflow: "hidden",
-				width: "100%"
-			});
-
-			$slider.css({
-				marginLeft: "0px",
-				float: "left",
-				width: 100 * slidenum + "%"
-			});
-				    
-			$slide.css({
-				float: "left",
-				width: (100 / slidenum) + "%"
-			});
-
-			carousel.transitionSwap($slider, true);
-		});
-	};
-
-
-	$.event.special.dragSnap = {
-		setup: function() {
-			var $el = $(this);
-
-			$el
-				.bind("touchstart", function(e) {
-					var data = e.originalEvent.touches ? e.originalEvent.touches[0] : e,
-						start = {
-							time: (new Date).getTime(),
-							coords: [ data.pageX, data.pageY ],
-							origin: $(e.target).closest('.slidewrap')
-						},
-						stop,
-						$tEl = $(e.target).closest('.slider'),
-						currentPos = ( $tEl.attr('style') != undefined ) ? $tEl.attr('style').match(/margin\-left:(.*[0-9])/i) && parseInt(RegExp.$1) : 0;
-
-					carousel.transitionSwap($tEl, false);
-
-					function moveHandler(e) {
-						var data = e.originalEvent.touches ? e.originalEvent.touches[0] : e;
-						stop = {
-								time: (new Date).getTime(),
-								coords: [ data.pageX, data.pageY ]
-						};
-
-						if(!start || Math.abs(start.coords[0] - stop.coords[0]) < Math.abs(start.coords[1] - stop.coords[1]) ) {
-							return;
-						}
-
-						$tEl.css({"margin-left": currentPos + ( ( (stop.coords[0] - start.coords[0]) / start.origin.width() ) * 100 ) + '%' });
-
-						// prevent scrolling
-						if (Math.abs(start.coords[0] - stop.coords[0]) > 10) {
+			_bindEventListeners: function(){
+				var $elem = $( this )
+					.bind( "click", function( e ){
+						var targ = $( e.target ).closest( "a[href='#next'],a[href='#prev']" );
+						if( targ.length ){
+							$elem[ pluginName ]( targ.is( "[href='#next']" ) ? "next" : "prev" );
 							e.preventDefault();
 						}
+					});
 
+				return this;
+			},
+
+			_addNextPrev: function(){
+				var $nav, $this = $( this ), $items, $active;
+
+				$nav = $("<nav class='"+ navClass +"'>" +
+					"<a href='#prev' class='prev' aria-hidden='true' title='Previous'>Prev</a>" +
+					"<a href='#next' class='next' aria-hidden='true' title='Next'>Next</a>" +
+					"</nav>");
+
+				$this.trigger( "beforecreatenav." + pluginName, { $nav: $nav });
+
+				return $this.append( $nav )[ pluginName ]( "_bindEventListeners" );
+			},
+
+			destroy: function(){
+				// TODO
+			}
+		};
+
+	// Collection method.
+	$.fn[ pluginName ] = function( arrg, a, b, c ) {
+		return this.each(function() {
+
+			// if it's a method
+			if( arrg && typeof( arrg ) === "string" ){
+				return $.fn[ pluginName ].prototype[ arrg ].call( this, a, b, c );
+			}
+
+			// don't re-init
+			if( $( this ).data( pluginName + "data" ) ){
+				return $( this );
+			}
+
+			// otherwise, init
+			$( this ).data( pluginName + "active", true );
+			$.fn[ pluginName ].prototype._create.call( this );
+		});
+	};
+
+	// add methods
+	prototype = $.extend( $.fn[ pluginName ].prototype, methods );
+}(jQuery));
+
+/*
+ * responsive-carousel touch drag extension
+ * https://github.com/filamentgroup/responsive-carousel
+ *
+ * Copyright (c) 2012 Filament Group, Inc.
+ * Licensed under the MIT, GPL licenses.
+ */
+
+(function($) {
+	
+	var pluginName = "carousel",
+		initSelector = "." + pluginName,
+		noTrans = pluginName + "-no-transition",
+		// UA is needed to determine whether to return true or false during touchmove (only iOS handles true gracefully)
+		iOS = /iPhone|iPad|iPod/.test( navigator.platform ) && navigator.userAgent.indexOf( "AppleWebKit" ) > -1,
+		touchMethods = {
+			_dragBehavior: function(){
+				var $self = $( this ),
+					origin,
+					data = {},
+					xPerc,
+					yPerc,
+					setData = function( e ){
+						
+						var touches = e.touches || e.originalEvent.touches,
+							$elem = $( e.target ).closest( initSelector );
+						
+						if( e.type === "touchstart" ){
+							origin = { 
+								x : touches[ 0 ].pageX,
+								y: touches[ 0 ].pageY
+							};
+						}
+
+						if( touches[ 0 ] && touches[ 0 ].pageX ){
+							data.touches = touches;
+							data.deltaX = touches[ 0 ].pageX - origin.x;
+							data.deltaY = touches[ 0 ].pageY - origin.y;
+							data.w = $elem.width();
+							data.h = $elem.height();
+							data.xPercent = data.deltaX / data.w;
+							data.yPercent = data.deltaY / data.h;
+							data.srcEvent = e;
+						}
+
+					},
+					emitEvents = function( e ){
+						setData( e );
+						if( data.touches.length === 1 ){
+							$( e.target ).closest( initSelector ).trigger( "drag" + e.type.split( "touch" )[ 1], data );
+						}
 					};
 
-					$el
-						.bind("gesturestart", function(e) {
-							$el
-								.unbind("touchmove", moveHandler)
-								.unbind("touchend", moveHandler);
-						})
-						.bind("touchmove", moveHandler)
-						.one("touchend", function(e) {
+				$( this )
+					.bind( "touchstart", function( e ){
+						$( this ).addClass( noTrans );
+						emitEvents( e );
+					} )
+					.bind( "touchmove", function( e ){
+						setData( e );
+						emitEvents( e );
+						if( !iOS ){
+							e.preventDefault();
+							window.scrollBy( 0, -data.deltaY );
+						}					
+					} )
+					.bind( "touchend", function( e ){
+						$( this ).removeClass( noTrans );
+						emitEvents( e );
+					} );
+					
+					
+			}
+		};
+			
+	// add methods
+	$.extend( $.fn[ pluginName ].prototype, touchMethods ); 
+	
+	// DOM-ready auto-init
+	$( document ).on( "create." + pluginName, initSelector, function(){
+		$( this )[ pluginName ]( "_dragBehavior" );
+	} );
 
-							$el.unbind("touchmove", moveHandler);
-							carousel.transitionSwap($tEl, true);
+}(jQuery));
 
-							if (start && stop ) {
+/*
+ * responsive-carousel touch drag transition
+ * https://github.com/filamentgroup/responsive-carousel
+ *
+ * Copyright (c) 2012 Filament Group, Inc.
+ * Licensed under the MIT, GPL licenses.
+ */
 
-								if (Math.abs(start.coords[0] - stop.coords[0]) > 10
-									&& Math.abs(start.coords[0] - stop.coords[0]) > Math.abs(start.coords[1] - stop.coords[1])) {
-									e.preventDefault();
-								} else {
-									carousel.snapBack($tEl, true);
-									return;
-								}
+(function($) {
+	
+	var pluginName = "carousel",
+		initSelector = "." + pluginName,
+		activeClass = pluginName + "-active",
+		itemClass = pluginName + "-item",
+		dragThreshold = function( deltaX ){
+			return Math.abs( deltaX ) > 4;
+		},
+		getActiveSlides = function( $carousel, deltaX ){
+			var $from = $carousel.find( "." + pluginName + "-active" ),
+				activeNum = $from.prevAll().length + 1,
+				forward = deltaX < 0,
+				nextNum = activeNum + (forward ? 1 : -1),
+				$to = $carousel.find( "." + itemClass ).eq( nextNum - 1 );
+				
+			if( !$to.length ){
+				$to = $carousel.find( "." + itemClass )[ forward ? "first" : "last" ]();
+			}
+			
+			return [ $from, $to ];
+		};
+		
+	// Touch handling
+	$( document )
+		.on( "dragmove", initSelector, function( e, data ){
 
-								if (Math.abs(start.coords[0] - stop.coords[0]) > 1 && Math.abs(start.coords[1] - stop.coords[1]) < 75) {
-									var left = start.coords[0] > stop.coords[0];
+			if( !dragThreshold( data.deltaX ) ){
+				return;
+			}
+			var activeSlides = getActiveSlides( $( this ), data.deltaX );
+			
+			activeSlides[ 0 ].css( "left", data.deltaX + "px" );
+			activeSlides[ 1 ].css( "left", data.deltaX < 0 ? data.w + data.deltaX + "px" : -data.w + data.deltaX + "px" );
+		} )
+		.on( "dragend", initSelector, function( e, data ){
+			if( !dragThreshold( data.deltaX ) ){
+				return;
+			}
+			var activeSlides = getActiveSlides( $( this ), data.deltaX ),
+				newSlide = Math.abs( data.deltaX ) > 45;
+			
+			$( this ).one( navigator.userAgent.indexOf( "AppleWebKit" ) ? "webkitTransitionEnd" : "transitionEnd", function(){
+				activeSlides[ 0 ].add( activeSlides[ 1 ] ).css( "left", "" );
+				$( this ).trigger( "goto." + pluginName, activeSlides[ 1 ] );
+			});			
+				
+			if( newSlide ){
+				activeSlides[ 0 ].removeClass( activeClass ).css( "left", data.deltaX > 0 ? data.w  + "px" : -data.w  + "px" );
+				activeSlides[ 1 ].addClass( activeClass ).css( "left", 0 );
+			}
+			else {
+				activeSlides[ 0 ].css( "left", 0);
+				activeSlides[ 1 ].css( "left", data.deltaX > 0 ? -data.w  + "px" : data.w  + "px" );	
+			}
+		} );
+		
+}(jQuery));
 
-								if( -( stop.coords[0] - start.coords[0]) > ( start.origin.width() / 4 ) || ( stop.coords[0] - start.coords[0]) > ( start.origin.width() / 4 ) ) {
+/*
+ * responsive-carousel auto-init extension
+ * https://github.com/filamentgroup/responsive-carousel
+ *
+ * Copyright (c) 2012 Filament Group, Inc.
+ * Licensed under the MIT, GPL licenses.
+ */
 
-									start.origin.css("marginLeft", 0).trigger("dragSnap", {direction: left ? "left" : "right"});
-
-									} else {
-										carousel.snapBack($tEl, left);
-									}
-
-								}
-							}
-							start = stop = undefined;
-						});
-				});
-		}
-	};
-})(jQuery);
+(function( $ ) {
+	// DOM-ready auto-init
+	$( function(){
+		$( ".carousel" ).carousel();
+	} );
+}( jQuery ));
