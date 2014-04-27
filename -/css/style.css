@@ -617,7 +617,6 @@ screen and (min-width: 1200px) {
 	}
 	.blog .main,
 	.blog .other {
-		margin: 0;
 		float: none;
 		width: auto;
 	}
