@@ -1,21 +1,7 @@
 /*
 
 ROBOT…OR NOT?
-© 2011 Ethan Marcotte
-
----------------------
-
-Hello there, lovely reader!
-
-The below CSS supports the “ROBOT…OR NOT?” demo site (http://responsivewebdesign.com/robot/), which in turn supports the RESPONSIVE WEB DESIGN book (http://www.abookapart.com/products/responsive-web-design). Please do come in, and poke around.
-
-As you do, though, there are two things I'd ask you keep in mind:
-
-This stylesheet reflects the structure of the book: starting from a desktop-centric layout, and using media queries to size it up *and* down from that point. As I say in Chapter 5 of the book, the more responsible, *accessible* approach would be to start from a linear, small screen-friendly layout, and use `min-width` queries to scale *up* from that point.
-
-The book mentions the need for special CSS comments (namely, a comment containing `\mediaquery`) to use the respond.js library (https://github.com/scottjehl/Respond). The script was recently updated so that those comments are no longer required: just write your media queries, drop in the script, and have fun!
-
-Thanks so much for reading. If you'd like to drop me a line, please do so at http://ethanmarcotte.com/#contact. Thanks again!
+© 2014 Ethan Marcotte
 
 */
 
@@ -47,17 +33,17 @@ table { border-collapse:collapse;border-spacing:0; }
 /*-  BASE STYLES
 ----------------------------------------------------------------------*/
 body {
-	background: #CECECE url("../../img/body.gif");
-	background: url("../../img/tile.png") repeat-x -2% -230px,
-		url("../../img/tile.png") repeat-x -4% 550px,
-		url("../../img/tile.png") repeat-x -8% 80%,
-		url("../../img/body.gif") repeat -50% 0,
+	background: #CECECE url("../img/body.gif");
+	background: url("../img/tile.png") repeat-x -2% -230px,
+		url("../img/tile.png") repeat-x -4% 550px,
+		url("../img/tile.png") repeat-x -8% 80%,
+		url("../img/body.gif") repeat -50% 0,
 		#CECECE;
 	color: #303030;
 	font: normal 100%/1.5 Calibri, Candara, "Gill Sans", "Gill Sans MT", sans-serif;
 }
 .ie7 body {
-	background: #CECECE url("../../img/body.gif");	/* Stupid IE7 bug is stupid. */
+	background: #CECECE url("../img/body.gif");	/* Stupid IE7 bug is stupid. */
 }
 table {
 	font-size:inherit;
@@ -137,7 +123,7 @@ img {
 	width: 90%;
 }
 .logo {
-	background: #C52618 url("../../img/logo-bg.jpg");
+	background: #C52618 url("../img/logo-bg.jpg");
 	float: left;
 	width: 16.875%;	/* 162 / 960 */
 }
@@ -185,7 +171,7 @@ img {
 	display: block;
 }
 .nav-primary {
-	background: #5E140D url("../../img/nav-bg.jpg");
+	background: #5E140D url("../img/nav-bg.jpg");
 	font: bold 14px "pill-gothic-300mg-1","pill-gothic-300mg-2", Calibri, Candara, "Gill Sans", "Gill Sans MT", sans-serif;
 	padding: 1.2em 1em 1em;
 	text-transform: uppercase;
@@ -214,7 +200,7 @@ img {
 
 .welcome,
 .gallery {
-	background: #F8F5F2 url("../../img/noise.gif");
+	background: #F8F5F2 url("../img/noise.gif");
 }
 .welcome {
 	clear: both;
@@ -287,7 +273,7 @@ img {
 	z-index: 10;
 }
 .carousel-nav a {
-	background: url("../../img/arrow-left.gif") no-repeat 50% 50%;
+	background: url("../img/arrow-left.gif") no-repeat 50% 50%;
 	display: block;
 	float: left;
 	height: 40px;
@@ -306,7 +292,7 @@ a.disabled:hover {
 	background-position: 50% 50%;
 }
 a.next {
-	background: url("../../img/arrow-right.gif") no-repeat 25% 50%;
+	background: url("../img/arrow-right.gif") no-repeat 25% 50%;
 }
 a.next:hover {
 	background-position: 25% 48%;
@@ -350,10 +336,10 @@ a.next.disabled:hover {
 	width: 93.75%;			/* 900/960 */
 }
 .blog {
-	background: #F8F5F2 url("../../img/blog-bg.png") repeat-y 63.1111111111111% 0;	/* 568/900 */
+	background: #F8F5F2 url("../img/blog-bg.png") repeat-y 63.1111111111111% 0;	/* 568/900 */
 }
 .lede {
-	background: #751910 url("../../img/blog-title-bg.jpg");
+	background: #751910 url("../img/blog-title-bg.jpg");
 	color: #F9E3CC;
 	font: normal 1.25em "league-gothic-1", "league-gothic-2", "League Gothic", "Arial Narrow", Arial, sans-serif;	/* 20px / 16px */
 	padding: 0.8em 5.33333333%;	/* 16px / 20px; 48px / 900px */
@@ -508,7 +494,7 @@ blockquote {
 	padding-left: 23px;
 }
 .recent-entries h2 a {
-	background: url("../../img/lines.png") no-repeat 0 0.25em;
+	background: url("../img/lines.png") no-repeat 0 0.25em;
 	display: block;
 }
 .recent-entries li {
@@ -605,18 +591,17 @@ blockquote {
 /*-  MEDIA QUERIES
 ----------------------------------------------------------------------*/
 /* Disable iOS/WinMobile font size changes */
-@media screen and (max-width: 600px),
-screen and (max-device-width: 480px) {
-	html {
-		-ms-text-size-adjust: none;
-		-webkit-text-size-adjust: none;
-	}
+html {
+	font-size: 100%;
+	-ms-text-size-adjust: 100%;
+	-webkit-text-size-adjust: 100%;
 }
 
 /*
 	Blog style for: Interim and OMFGHUGE
 */
-@media screen and (max-width: 768px), screen and (min-width: 1200px) {
+@media screen and (max-width: 768px),
+screen and (min-width: 1200px) {
 	.welcome {
 		margin-bottom: 20px;
 	}
@@ -628,7 +613,7 @@ screen and (max-device-width: 480px) {
 		max-width: 100%;
 	}
 	.blog {
-		background: #F8F5F2 url("../../img/noise.gif");
+		background: #F8F5F2 url("../img/noise.gif");
 	}
 	.blog .main,
 	.blog .other {
@@ -640,7 +625,7 @@ screen and (max-device-width: 480px) {
 		margin-bottom: 0;
 	}
 	.blog .other {
-		background: url("../../img/noise-gray.gif");
+		background: url("../img/noise-gray.gif");
 		padding: 20px 8.48057%;
 	}
 	.other .section {
@@ -663,12 +648,12 @@ screen and (max-device-width: 480px) {
 
 @media screen and (max-width: 768px) {
 	body {
-		background: fixed url("../../img/tile.png") repeat-x -50% -40px,
-			url("../../img/body.gif") repeat -50% 0,
+		background: fixed url("../img/tile.png") repeat-x -50% -40px,
+			url("../img/body.gif") repeat -50% 0,
 			#CECECE;
 	}
 	.ie7 body {
-		background: #CECECE url("../../img/body.gif");	/* Stupid IE7 bug is stupid. */
+		background: #CECECE url("../img/body.gif");	/* Stupid IE7 bug is stupid. */
 	}
 	.page {
 		position: relative;
@@ -898,11 +883,11 @@ screen and (max-device-width: 480px) {
 		font-size: 2.75em;		/* 44px / 16px */
 	}
 	.carousel-nav {
-		margin: 0 1.81818% 0 0;
-		left: auto;
-		top: auto;
 		bottom: -20px;
+		left: auto;
+		margin: 0 1.81818% 0 0;
 		right: 0;
+		top: auto;
 	}
 	.slides .figure b {
 		width: auto;
@@ -978,7 +963,7 @@ screen and (max-device-width: 480px) {
 }
 
 .ie6 .site {
-	background: url("../../img/tile.png") repeat-x -2% -230px;
+	background: url("../img/tile.png") repeat-x -2% -230px;
 	zoom: 1;
 }
 .ie .logo,
