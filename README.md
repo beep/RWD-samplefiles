@@ -11,6 +11,4 @@ As you do, though, there are two things I'd ask you keep in mind:
 
 With all that said: dive on in! And thanks _so much_ for reading my book!
 
-— Ethan Marcotte
-: [@beep](https://twitter.com/beep) / [@RWD](https://twitter.com/rwd)
-: [ethanmarcotte.com](http://ethanmarcotte.com/)
+— Ethan Marcotte ([@beep](https://twitter.com/beep) / [@RWD](https://twitter.com/rwd) / [www](http://ethanmarcotte.com/))
